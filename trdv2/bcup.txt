@@ -1,0 +1,59 @@
+def FindAnagram(source):
+    source = source.rstrip("\n\r")
+    if len(source) <= 1:
+        return "Нет анаграммы"
+    number = ""
+    number_alp = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for i in range(0, len(source)):
+        if '0' <= str(source[i]) <= '9':
+            number += source[i]
+            number_alp[int(source[i])] += 1
+
+    sav = []
+    for i in range(0, len(number)):
+        sav.append(number[i])
+
+    current_try = []
+    for i in range(0, len(sav)):
+        current_try.append(sav[i])
+
+    print(sav)
+
+    # for i in range(0, len(current_try)):
+    #     for j in range(0, len(current_try)):
+    #         if current_try[i] < current_try[j]:
+    #             current_try[i], current_try[j] = current_try[j], current_try[i]
+    #
+    # print("sorted:", current_try)
+
+    counter = 0
+    for i in range(0, len(current_try)):
+        for j in range(i, len(current_try)):
+            if i == j and j + 1 <= len(current_try):
+                continue
+            if current_try[i] != current_try[j] and current_try[j] != sav[i] and current_try[i] != sav[j]:
+                print("current_try[j]:", current_try[j], "sav[i]:", sav[i])
+                current_try[i], current_try[j] = current_try[j], current_try[i]
+                counter += 1
+                print("I:", i, "J:", j, "swap(", current_try[i], ",", current_try[j], ") ///////", current_try)
+                break
+
+    if counter == 0:
+        return "Нет анаграммы"
+    print("first roll:", current_try)
+    reverse_i = len(current_try) - 1
+    while reverse_i >= 0:
+        for j in range(0, reverse_i):
+            if current_try[reverse_i] < current_try[j] != sav[reverse_i] and current_try[reverse_i] != sav[j]:
+                current_try[reverse_i], current_try[j] = current_try[j], current_try[reverse_i]
+                print("I:", reverse_i, "J:", j, "swap(", current_try[reverse_i], ",",
+                      current_try[j], ") ///////", current_try)
+                break
+        reverse_i = reverse_i - 1
+    print(current_try)
+
+    number = ""
+    for i in range(0, len(current_try)):
+        number += str(current_try[i])
+
+    return number
