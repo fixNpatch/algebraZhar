@@ -63,7 +63,6 @@ def supportDeCrypt(source, key, obj):
     generated_structs = []
 
     key_UNIQUE = []
-    key_BASE = []
 
     # собираем уникальный ключ
     for i in range(0, len(key)):
@@ -77,25 +76,19 @@ def supportDeCrypt(source, key, obj):
         else:
             key_UNIQUE.append(str(key[i]))
 
-    # вводим структуру для удобного итерирования ключа
-    for i in range(0, len(key)):
-        key_BASE.append(str(key[i]))
-
-    for i in range(0, len(key_UNIQUE)):
-
-
+    obj.ConsoleLog("Временная(черновая) таблица\n")
     for i in range(0, len(key_UNIQUE)):
         adj_result = []
-        for j in range(0, len(key_BASE)):
+        for j in range(0, len(key)):
             adj_result.append(source[source_counter])
             source_counter += 1
+        obj.ConsoleLog(str(adj_result) + '\n')
         generated_structs.append(adj_result)
 
     for i in range(0, len(key_UNIQUE)):
         print(generated_structs[i])
 
     generated_structs_adj = []
-
     for i in range(0, len(key_UNIQUE)):
         generated_structs_adj.append([str(key_UNIQUE[i]), i, []])
 
@@ -107,21 +100,32 @@ def supportDeCrypt(source, key, obj):
     for i in range(0, len(key_UNIQUE)):
         for j in range(0, len(key_UNIQUE)):
             if generated_structs_sorted[i][1] < generated_structs_sorted[j][1]:
-                generated_structs_sorted[i], generated_structs_sorted[j] = generated_structs_sorted[j], generated_structs_sorted[i]
-
+                generated_structs_sorted[i], generated_structs_sorted[j] = generated_structs_sorted[j], \
+                                                                           generated_structs_sorted[i]
+    obj.ConsoleLog("Отсортированная таблица\n")
     for i in range(0, len(key_UNIQUE)):
         print(generated_structs_sorted[i])
-
+        obj.ConsoleLog(str(generated_structs_sorted[i][2]) + '\n')
 
     result = ""
-    for i in range(0, len(key_UNIQUE)):
-        for j in range(0, len(key_BASE)):
-            result += generated_structs[j][i]
+    obj.ConsoleLog("Восстановленная таблица\n")
+    for i in range(0, len(key)):
+        adj_result = []
+        for j in range(0, len(key_UNIQUE)):
+            adj_result.append(str(generated_structs_sorted[j][2][i]))
+            result += str(generated_structs_sorted[j][2][i])
+        obj.ConsoleLog(str(adj_result) + '\n')
 
+    pointer_left = 0
+    while pointer_left < len(result):
+        if result[pointer_left] == '#':
+            pointer_right = pointer_left
+            while pointer_right < len(result) and result[pointer_left] == result[pointer_right]:
+                pointer_right += 1
+            result = result[:pointer_left] + result[pointer_right:]
+        pointer_left += 1
 
-    print(result)
-
-    return ""
+    return result
 
 
 def MainCrypt(source, key, obj):
