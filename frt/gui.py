@@ -9,12 +9,14 @@ class Engine(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)
         self.parent = parent
+        self.winfo_toplevel().title("Шифр революционеров (Ипполит)")
         self.initUI()
 
     def initUI(self):
         self.place(x=0, y=0, width=800, height=450)
 
         text_box = Text(wrap=WORD, name="text_box_q")
+        console_box = Text(wrap=WORD, name="console_box_q")
         key_entry = Text(wrap=WORD, name="entry_q")
 
         btn_open_file = Button(self,  # родительское окно
@@ -32,6 +34,11 @@ class Engine(Frame):
                            width=20, height=2,
                            bg="white", fg="black", command=self.CleanTextBox)
 
+        btn_clean_console = Button(self,
+                           text="CleanConsole",
+                           width=20, height=2,
+                           bg="white", fg="black", command=self.CleanConsoleBox)
+
         btn_crypt = Button(self,
                            text="Crypt",
                            width=20, height=2,
@@ -43,13 +50,15 @@ class Engine(Frame):
                              bg="white", fg="black", command=self.DeCrypt)
 
         # placing
-        text_box.place(x=20, y=10, height=400, width=600)
+        text_box.place(x=20, y=10, height=100, width=600)
+        console_box.place(x=20, y=120, height=310, width=600)
         btn_open_file.place(x=630, y=10)
         btn_save_file.place(x=630, y=60)
         btn_clean.place(x=630, y=110)
-        btn_crypt.place(x=630, y=160)
-        btn_decrypt.place(x=630, y=210)
-        key_entry.place(x=630, y=260, width=150, height=30)
+        btn_clean_console.place(x=630, y=160)
+        btn_crypt.place(x=630, y=210)
+        btn_decrypt.place(x=630, y=260)
+        key_entry.place(x=630, y=310, width=150, height=30)
 
     def OpenFile(self):
         print("Action::OpenFile")
@@ -65,6 +74,11 @@ class Engine(Frame):
         flow.write(text_box.get(0.0, END))
         flow.close()
 
+    def CleanConsoleBox(self):
+        print("Action::CleanConsole")
+        console_box = self.parent.nametowidget('console_box_q')
+        console_box.delete(0.0, END)
+
     def CleanTextBox(self):
         print("Action::Clean")
         text_box = self.parent.nametowidget('text_box_q')
@@ -74,15 +88,19 @@ class Engine(Frame):
         print("Action::Crypt")
         key_entry = self.parent.nametowidget('entry_q')
         text_box = self.parent.nametowidget('text_box_q')
-        result = MainCrypt(text_box.get(0.0, END), str(key_entry.get(0.0, END)))
+        result = MainCrypt(text_box.get(0.0, END), str(key_entry.get(0.0, END)), self)
         text_box.delete(0.0, END)
         text_box.insert(0.0, result)
+
+    def ConsoleLog(self, text):
+        console_box = self.parent.nametowidget('console_box_q')
+        console_box.insert(END, text)
 
     def DeCrypt(self):
         print("Action::DeCrypt")
         text_box = self.parent.nametowidget('text_box_q')
         key_entry = self.parent.nametowidget('entry_q')
-        result = MainDeCrypt(text_box.get(0.0, END), str(key_entry.get(0.0, END)))
+        result = MainDeCrypt(text_box.get(0.0, END), str(key_entry.get(0.0, END)), self)
         text_box.delete(0.0, END)
         text_box.insert(0.0, result)
 
