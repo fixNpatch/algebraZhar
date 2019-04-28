@@ -51,6 +51,7 @@ def supportCrypt(source, key, obj):
     # инициализируем предварительный результат
     pre_result = ""
 
+    obj.ConsoleLog("\n")
     # сортируем по алфавиту "столбцы" (вернее уже транспонированные в строки)
     key_sorted = sorted(key_base)
     for i in range(0, len(key_sorted)):
@@ -68,105 +69,82 @@ def supportCrypt(source, key, obj):
 def supportDeCrypt(source, key, obj):
     # инициализация двумерного массива
     key_base = []
-    counter = 0
 
     key_array = []
     for i in range(0, len(key)):
         key_array.append(str(key[i]))
-    obj.ConsoleLog(str(key_array) + "  <--- ключ\n")
 
-    for i in range(0, min(len(key), len(source))):
-        key_base.append([str(key[i]), i])
+    source_counter = 0
+    string_counter = 0
+    generated_structs = []
+
+    # заполняем табличку
+    for i in range(0, len(key)):
+        adj_result = []  # промежуточный результат (набираем строку, чтобы потом запушить в таблицу)
+        for j in range(0, len(key) - i):
+            if source_counter >= len(source):
+                break
+            adj_result.append([])
+            source_counter += 1
+        if not adj_result:
+            break
+        generated_structs.append(adj_result)
+        string_counter += 1
+        if len(source) < len(key):
+            break
+
+    obj.ConsoleLog("Шаблонная таблица\n")
+    key_array = []
+    for i in range(0, len(key)):
+        key_array.append(str(key[i]))
+
+    for i in range(0, string_counter):
+        print(generated_structs[i])
+        obj.ConsoleLog(str(generated_structs[i]) + '\n')
+
+    print("string counter:", string_counter)
+    for i in range(0, len(generated_structs[0])):  # берем первую строку
+        adj_result = []
+        for j in range(0, string_counter):  # бежим по столбцам
+            if len(generated_structs[j]) > i:  # если
+                adj_result.append(generated_structs[j][i])
+            else:
+                break
+        key_base.append([str(key[i]), i, adj_result])
 
     # сортируем ключ по алфавиту
     key_sorted = sorted(key_base)
     print("key_sorted:", key_sorted)
 
-    key_array_sorted = []
+    counter = 0
     for i in range(0, len(key_base)):
-        key_array_sorted.append(str(key_sorted[i][0]))
-    obj.ConsoleLog(str(key_array_sorted) + "  <--- Отсортированный и подогнанный по размеру ключ\n")
-
-    # необходимо узнать количество строк.
-    source_counter = len(source)
-    string_counter = 0
-    while True:
-        source_counter -= len(key_base) - string_counter
-        string_counter += 1
-        if source_counter <= 0:
+        stop = False
+        for j in range(0, len(key_sorted[i][2])):
+            key_sorted[i][2][j] = source[counter]
+            counter += 1
+            if counter <= 0:
+                stop = True
+                break
+        if stop:
             break
 
-    print("количество строк в таблице:", string_counter)
-    # указываем длинну строк/столбцов
-    rest_source = len(source)
-    string_capacity = []
-    for i in range(0, string_counter):
-        string_capacity.append(min(rest_source, len(key) - i))
-        rest_source -= len(key) - i
-
-    cnt = 0
-    for i in range(0, min(len(source), len(key))):
-        adj_result = []
-        source_EOF = False
-
-        # необходимо узнать сколько символов "поместится" в столбце
-        rest = len(source)
-        str_count = 0
-        # while True:
-        #     if rest - key_sorted[i][1] > 0:
-        #         if rest - (len(key) - str_count) > 0:
-        #             rest -= len(key) - str_count
-        #             str_count += 1
-        #         else:
-        #             break
-        #     else:
-        #         break
-
-        for lum in range(0, string_counter):
-            if rest - key_sorted[i][1] > 0:
-                rest -= len(key) - lum
-                str_count += 1
-            else:
-                break
-
-        # заполняем таблицу
-        for j in range(0, min(string_counter, len(key) - key_sorted[i][1])):
-        # for j in range(0, min(string_counter, str_count)):
-            # print(string_capacity[key_sorted[i][1]])
-            if cnt >= len(source):
-                source_EOF = True
-                break
-            if string_capacity[j] <= 0:
-                break
-            adj_result.append(source[cnt])
-            cnt += 1
-            string_capacity[j] -= 1
-        print(adj_result)
-        key_sorted[i].append(adj_result)
-        if source_EOF:
-            break
-
-    print("YOHOHO")
-    print("key_base", key_sorted)
-
-    # сортируем таблицу по изначальному ключу (например, маяк -> (сейчас) акмя -> (делаем) маяк)
-    for i in range(0, min(len(key), len(source))):
-        for j in range(0, min(len(key), len(source))):
+    # сортируем ключ по начальному состоянию
+    for i in range(0, len(key_sorted)):
+        for j in range(0, len(key_sorted)):
             if key_sorted[i][1] < key_sorted[j][1]:
                 key_sorted[i], key_sorted[j] = key_sorted[j], key_sorted[i]
 
     result = ""
-    for j in range(0, string_counter):
-        for i in range(0, len(key_sorted)):
-            adj_result = ""
-            if len(key_sorted[i]) > 2:
-                current_column = key_sorted[i][2]
-                if len(current_column) > j:
-                    result += current_column[j]
-                print(current_column)
-            result += adj_result
-
-    print(result)
+    obj.ConsoleLog("Заполненая таблица\n")
+    obj.ConsoleLog(str(key_array) + "  <--- ключ\n")
+    for i in range(0, len(generated_structs)):
+        adj_result = []
+        for j in range(0, len(generated_structs[i])):
+            adj_result.append(key_sorted[j][2][i])
+            result += str(key_sorted[j][2][i])
+        obj.ConsoleLog(str(adj_result) + "\n")
+        print(adj_result)
+    print(generated_structs)
 
     return result
 
@@ -224,10 +202,12 @@ def MainCrypt(source, key, obj):
         result += pre_result[i]
 
     print(result)
+    obj.ConsoleLog(" ~~ OK ~~\n\n")
     return result
 
 
 def MainDeCrypt(source, key, obj):
+    obj.ConsoleLog("Дешифрование\n")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     source = source.rstrip("\n\r").upper()  # удаляем linebreaks
@@ -255,17 +235,19 @@ def MainDeCrypt(source, key, obj):
     if len(source) % MAX_CHARS != 0:
         parts = parts + 1
     print("parts:", parts)
+    obj.ConsoleLog("Количество блоков:" + str(parts) + "\n")
 
     result = ""
     posFrom = 0
     posTo = MAX_CHARS - 1
     for i in range(0, int(parts)):
-        obj.ConsoleLog("part:" + str(i) + "\n")
         print(posFrom, posTo)
+        obj.ConsoleLog("\tБлок:" + str(i) + '\n')
         partedSource = source[posFrom:posTo + 1]
         result += supportDeCrypt(partedSource, key, obj)
         posFrom = posFrom + MAX_CHARS
         posTo = min(len(source), posTo + MAX_CHARS)
 
     print('\n\n ~~ OK ~~\n')
+    obj.ConsoleLog(" ~~ OK ~~\n\n")
     return result
