@@ -1,121 +1,122 @@
 def supportCrypt(source, key, obj):
-    # нужен для проверки len(source) <? количества ячеек в таблице
-    source_counter = 0
-    # нужен для проверки сколько получилось строк
+    source_pointer = 0
     string_counter = 0
 
-    # инициализация двумерного массива
-    generated_structs = []
+    table = []
     key_base = []
-
-    print("parted source:", key)
 
     # заполняем табличку
     for i in range(0, len(key)):
-        adj_result = []  # промежуточный результат (набираем строку, чтобы потом запушить в таблицу)
+        tmp_string = []
         for j in range(0, len(key) - i):
-            if source_counter >= len(source):
+            if source_pointer >= len(source):
                 break
-            adj_result.append(source[source_counter])
-            source_counter += 1
-        if not adj_result:
+            tmp_string.append(source[source_pointer])
+            source_pointer += 1
+        if not tmp_string:
             break
-        generated_structs.append(adj_result)
+        table.append(tmp_string)
         string_counter += 1
         if len(source) < len(key):
             break
 
-    print("заполненая таблица")
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~
+    # блоки отрисовки
+    # ~~~~~~~~~~~~~~~~~~~~~
+
+    # рисуем ключ в консоль
     obj.ConsoleLog("Заполненая таблица\n")
-    key_array = []
     for i in range(0, len(key)):
-        key_array.append(str(key[i]))
-    obj.ConsoleLog(str(key_array) + "  <--- ключ\n")
+        obj.ConsoleLog(str(key[i]) + " ")
+    obj.ConsoleLog("<--- ключ\n")
 
-    for i in range(0, string_counter):
-        print(generated_structs[i])
-        obj.ConsoleLog(str(generated_structs[i]) + '\n')
+    #  рисуем таблицу в консоль
+    for i in range(0, string_counter):  # НЦ от 0 до количества строк в таблице
+        adj_string = ""
+        current_string = table[i]
+        for j in range(0, len(current_string)):
+            adj_string += str(current_string[j]) + " "
+        obj.ConsoleLog(adj_string + '\n')
 
-    print("string counter:", string_counter)
-    for i in range(0, len(generated_structs[0])):  # берем первую строку
-        adj_result = []
-        for j in range(0, string_counter):  # бежим по столбцам
-            if len(generated_structs[j]) > i:  # если
-                adj_result.append(generated_structs[j][i])
+    # ~~~~~~~~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    # создаем структуру типа [Буква, Начальная позиция, Колонка]
+
+    for i in range(0, len(table[0])):
+        tmp_string = []
+        for j in range(0, string_counter):
+            if len(table[j]) > i:
+                tmp_string.append(table[j][i])
             else:
                 break
-        key_base.append([str(key[i]), i, adj_result])
+        key_base.append([str(key[i]), i, tmp_string])
 
-    print("key_base:", key_base)
+    key_base_sorted = sorted(key_base)
 
     # инициализируем предварительный результат
     pre_result = ""
 
-    obj.ConsoleLog("\n")
-    # сортируем по алфавиту "столбцы" (вернее уже транспонированные в строки)
-    key_sorted = sorted(key_base)
-    for i in range(0, len(key_sorted)):
-        adj_result = ""
-        current_column = key_sorted[i][2]
+    for i in range(0, len(key_base_sorted)):
+        tmp_string = ""
+        tmp_string_log = ""
+        current_column = key_base_sorted[i][2]
         for j in range(0, len(current_column)):
-            adj_result += current_column[j]
-        print(current_column)
-        obj.ConsoleLog(str(current_column) + " ")
-        pre_result += adj_result
+            tmp_string += current_column[j]
+            tmp_string_log += str(current_column[j]) + " "
+        obj.ConsoleLog("[" + tmp_string_log + "]")
+        pre_result += tmp_string
     obj.ConsoleLog("<--- выписываем\n")
     return pre_result
 
 
 def supportDeCrypt(source, key, obj):
-    # инициализация двумерного массива
-    key_base = []
-
-    key_array = []
-    for i in range(0, len(key)):
-        key_array.append(str(key[i]))
-
     source_counter = 0
     string_counter = 0
-    generated_structs = []
+
+    table = []
+    key_base = []
 
     # заполняем табличку
     for i in range(0, len(key)):
-        adj_result = []  # промежуточный результат (набираем строку, чтобы потом запушить в таблицу)
+        tmp_string = []
         for j in range(0, len(key) - i):
             if source_counter >= len(source):
                 break
-            adj_result.append([])
+            tmp_string.append([])
             source_counter += 1
-        if not adj_result:
+        if not tmp_string:
             break
-        generated_structs.append(adj_result)
+        table.append(tmp_string)
         string_counter += 1
         if len(source) < len(key):
             break
 
+    # блок отрисовки
     obj.ConsoleLog("Шаблонная таблица\n")
-    key_array = []
-    for i in range(0, len(key)):
-        key_array.append(str(key[i]))
-
     for i in range(0, string_counter):
-        print(generated_structs[i])
-        obj.ConsoleLog(str(generated_structs[i]) + '\n')
+        obj.ConsoleLog(str(table[i]) + '\n')
 
-    print("string counter:", string_counter)
-    for i in range(0, len(generated_structs[0])):  # берем первую строку
-        adj_result = []
-        for j in range(0, string_counter):  # бежим по столбцам
-            if len(generated_structs[j]) > i:  # если
-                adj_result.append(generated_structs[j][i])
+    # создаем структуру типа [Буква, Начальная позиция, Колонка]
+    for i in range(0, len(table[0])):
+        tmp_string = []
+        for j in range(0, string_counter):
+            if len(table[j]) > i:
+                tmp_string.append(table[j][i])
             else:
                 break
-        key_base.append([str(key[i]), i, adj_result])
+        key_base.append([str(key[i]), i, tmp_string])
 
-    # сортируем ключ по алфавиту
+    for i in range(0, len(key_base)):
+        print(key_base[i])
+
+    # сортируем по алфавиту "столбцы" (вернее уже транспонированные в строки)
     key_sorted = sorted(key_base)
-    print("key_sorted:", key_sorted)
 
+    for i in range(0, len(key_sorted)):
+        print(key_sorted[i])
+
+    # заполняем шаблонную таблицу.
     counter = 0
     for i in range(0, len(key_base)):
         stop = False
@@ -136,16 +137,22 @@ def supportDeCrypt(source, key, obj):
 
     result = ""
     obj.ConsoleLog("Заполненая таблица\n")
-    obj.ConsoleLog(str(key_array) + "  <--- ключ\n")
-    for i in range(0, len(generated_structs)):
-        adj_result = []
-        for j in range(0, len(generated_structs[i])):
-            adj_result.append(key_sorted[j][2][i])
-            result += str(key_sorted[j][2][i])
-        obj.ConsoleLog(str(adj_result) + "\n")
-        print(adj_result)
-    print(generated_structs)
+    for i in range(0, len(key)):
+        obj.ConsoleLog(str(key[i]) + " ")
+    obj.ConsoleLog("<--- ключ\n")
 
+    for i in range(0, len(table)):
+        tmp_string = []
+        for j in range(0, len(table[i])):
+            tmp_string.append(key_sorted[j][2][i])
+            result += str(key_sorted[j][2][i])
+        # отрисовка
+        adj_string = ""
+        for c in range(0, len(tmp_string)):
+            adj_string += str(tmp_string[c]) + " "
+        obj.ConsoleLog(adj_string + "\n")
+
+    print(result)
     return result
 
 
@@ -168,6 +175,13 @@ def MainCrypt(source, key, obj):
         if 'А' <= source[i] <= 'Я' or '0' < source[i] < '9':
             request.append(source[i])
     source = request
+
+    # переопределение ключа
+    request = []
+    for i in range(0, len(key)):
+        if 'А' <= key[i] <= 'Я' or '0' < key[i] < '9':
+            request.append(key[i])
+    key = request
 
     MAX_CHARS = 0
     for i in range(0, len(key)):
@@ -225,6 +239,13 @@ def MainDeCrypt(source, key, obj):
         if 'А' <= source[i] <= 'Я' or '0' < source[i] < '9':
             request.append(source[i])
     source = request
+
+    # переопределение ключа
+    request = []
+    for i in range(0, len(key)):
+        if 'А' <= key[i] <= 'Я' or '0' < key[i] < '9':
+            request.append(key[i])
+    key = request
 
     MAX_CHARS = 0
     for i in range(0, len(key)):
